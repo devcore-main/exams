@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Exam Admin</title>
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="exam-container">
+
+<h1>Students Results</h1>
+
+<div id="results"></div>
+
+<button onclick="clearResults()">Clear Results</button>
+
+</div>
+
+<script>
+
+let results = JSON.parse(localStorage.getItem("examResults")) || []
+
+let html = ""
+
+results.forEach((r)=>{
+
+html += `
+
+<div class="question-result">
+
+<h3>${r.name}</h3>
+
+<p>Score: ${r.score}</p>
+
+<p>Date: ${r.date}</p>
+
+</div>
+
+`
+
+})
+
+document.getElementById("results").innerHTML = html
+
+
+function clearResults(){
+
+localStorage.removeItem("examResults")
+
+location.reload()
+
+}
+
+</script>
+
+</body>
+
+</html>
