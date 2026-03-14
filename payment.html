@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment — DEVCORE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--deep-navy:#0f1a2b;--navy:#1c2e4a;--steel:#52677d;--mist:#bdc4d4;--sand:#d1cfc9;--accent:#4a9eff;--accent-glow:rgba(74,158,255,0.15)}
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{font-family:'Fira Code',monospace;background:var(--deep-navy);color:var(--sand);overflow-x:hidden;cursor:none}
+        .cursor{width:8px;height:8px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;mix-blend-mode:screen}
+        .cursor-ring{width:32px;height:32px;border:1px solid rgba(74,158,255,.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:width .2s,height .2s,border-color .2s}
+        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--deep-navy)}::-webkit-scrollbar-thumb{background:var(--steel)}
+        body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:.4}
+        .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(74,158,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(74,158,255,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:24px 60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(82,103,125,.2);backdrop-filter:blur(12px);background:rgba(15,26,43,.7);transition:padding .3s}
+        .nav-logo{font-size:14px;font-weight:700;letter-spacing:.15em;color:var(--mist);text-decoration:none}
+        .b{color:var(--accent);font-weight:300}
+        .nav-links{display:flex;list-style:none;gap:40px;align-items:center}
+        .nav-links a{font-size:12px;letter-spacing:.1em;color:var(--steel);text-decoration:none;position:relative;transition:color .2s}
+        .nav-links a::before{content:'//';position:absolute;left:-18px;color:var(--accent);opacity:0;transition:opacity .2s;font-size:11px}
+        .nav-links a:hover{color:var(--mist)}
+        .nav-links a:hover::before{opacity:1}
+        .nav-cta{font-size:11px!important;color:var(--accent)!important;border:1px solid rgba(74,158,255,.3)!important;padding:8px 20px!important;letter-spacing:.12em!important;transition:background .2s!important}
+        .nav-cta:hover{background:var(--accent-glow)!important}
+        .nav-cta::before{display:none!important}
+
+        .page-hero{position:relative;z-index:1;padding:160px 60px 80px;border-bottom:1px solid rgba(82,103,125,.12)}
+        .page-tag{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.2em;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+        .page-tag::before{content:'';width:32px;height:1px;background:var(--accent)}
+        .page-title{font-size:clamp(36px,6vw,72px);font-weight:700;color:var(--mist);letter-spacing:-.02em;line-height:1;margin-bottom:20px}
+        .page-title span{color:transparent;-webkit-text-stroke:1px rgba(189,196,212,.3)}
+        .page-subtitle{font-size:13px;font-weight:300;color:var(--steel);line-height:1.8;max-width:500px}
+
+        /* Payment methods */
+        .section{position:relative;z-index:1;padding:80px 60px}
+        .section-label{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.2em;margin-bottom:40px;display:flex;align-items:center;gap:12px}
+        .section-label::before{content:'';width:24px;height:1px;background:var(--accent)}
+
+        .methods-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:80px}
+        .method-card{background:rgba(28,46,74,.25);border:1px solid rgba(82,103,125,.12);padding:40px 32px;cursor:none;transition:background .3s,border-color .3s;position:relative;overflow:hidden}
+        .method-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-glow),transparent);opacity:0;transition:opacity .3s}
+        .method-card:hover{background:rgba(28,46,74,.5);border-color:rgba(74,158,255,.2)}
+        .method-card:hover::before{opacity:1}
+        .method-icon{width:44px;height:44px;color:var(--accent);opacity:.7;margin-bottom:24px}
+        .method-name{font-size:16px;font-weight:600;color:var(--mist);margin-bottom:12px;letter-spacing:-.01em}
+        .method-desc{font-size:12px;font-weight:300;color:var(--steel);line-height:1.8;margin-bottom:20px}
+        .method-details{display:flex;flex-direction:column;gap:8px}
+        .method-detail{font-size:11px;color:var(--steel);display:flex;align-items:center;gap:8px}
+        .method-detail::before{content:'//';color:var(--accent);font-size:10px}
+
+        /* Pricing plans */
+        .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+        .plan-card{background:rgba(28,46,74,.25);border:1px solid rgba(82,103,125,.12);padding:40px 32px;cursor:none;transition:background .3s,border-color .3s;position:relative}
+        .plan-card.featured{background:rgba(28,46,74,.5);border-color:rgba(74,158,255,.3)}
+        .plan-badge{position:absolute;top:20px;right:20px;font-size:10px;font-weight:500;color:var(--deep-navy);background:var(--accent);padding:4px 10px;letter-spacing:.08em}
+        .plan-name{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.15em;margin-bottom:16px}
+        .plan-price{font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--mist);letter-spacing:-.02em;margin-bottom:4px;line-height:1}
+        .plan-price span{font-size:14px;font-weight:300;color:var(--steel)}
+        .plan-period{font-size:12px;font-weight:300;color:var(--steel);margin-bottom:28px}
+        .plan-divider{height:1px;background:rgba(82,103,125,.15);margin-bottom:24px}
+        .plan-features{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+        .plan-feature{font-size:12px;font-weight:300;color:var(--steel);display:flex;align-items:flex-start;gap:10px;line-height:1.5}
+        .plan-feature .check{color:var(--accent);flex-shrink:0;font-size:11px;margin-top:1px}
+        .plan-feature .cross{color:rgba(82,103,125,.4);flex-shrink:0;font-size:11px;margin-top:1px}
+        .plan-cta{font-family:'Fira Code',monospace;font-size:11px;font-weight:500;letter-spacing:.1em;color:var(--steel);background:transparent;border:1px solid rgba(82,103,125,.3);padding:12px 20px;cursor:none;width:100%;transition:all .2s;text-decoration:none;display:block;text-align:center}
+        .plan-cta:hover,.plan-card.featured .plan-cta{color:var(--deep-navy);background:var(--accent);border-color:var(--accent)}
+        .plan-card.featured .plan-cta{color:var(--deep-navy);background:var(--accent);border-color:var(--accent)}
+        .plan-card.featured .plan-cta:hover{box-shadow:0 6px 24px rgba(74,158,255,.4)}
+
+        /* Policy section */
+        .policy-wrap{position:relative;z-index:1;padding:0 60px 80px}
+        .policy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
+        .policy-item{background:rgba(28,46,74,.2);border:1px solid rgba(82,103,125,.1);padding:32px}
+        .policy-item h4{font-size:13px;font-weight:600;color:var(--mist);margin-bottom:12px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+        .policy-item h4 span{color:var(--accent);font-size:11px;font-weight:400}
+        .policy-item p{font-size:12px;font-weight:300;color:var(--steel);line-height:1.8}
+
+        /* CTA */
+        .cta-block{position:relative;z-index:1;margin:0 60px 80px;background:rgba(28,46,74,.3);border:1px solid rgba(82,103,125,.15);padding:60px;display:flex;align-items:center;justify-content:space-between;gap:40px;position:relative;overflow:hidden}
+        .cta-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+        .cta-block h3{font-size:clamp(18px,3vw,28px);font-weight:700;color:var(--mist);letter-spacing:-.02em;margin-bottom:8px}
+        .cta-block p{font-size:12px;font-weight:300;color:var(--steel)}
+        .btn-primary{font-family:'Fira Code',monospace;font-size:12px;font-weight:500;letter-spacing:.12em;color:var(--deep-navy);background:var(--accent);border:none;padding:14px 32px;cursor:none;transition:transform .2s,box-shadow .2s;text-decoration:none;display:inline-block;flex-shrink:0}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(74,158,255,.4)}
+
+        footer{position:relative;z-index:1;padding:40px 60px;border-top:1px solid rgba(82,103,125,.12);display:flex;align-items:center;justify-content:space-between}
+        .footer-logo{font-size:13px;font-weight:600;color:var(--mist);letter-spacing:.1em}
+        .footer-copy{font-size:11px;color:var(--steel)}
+        .footer-links{display:flex;gap:28px;list-style:none}
+        .footer-links a{font-size:11px;color:var(--steel);text-decoration:none;transition:color .2s}
+        .footer-links a:hover{color:var(--mist)}
+
+        .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+        .reveal.visible{opacity:1;transform:none}
+
+        @media(max-width:900px){
+            nav{padding:20px 24px}
+            .nav-links{display:none}
+            .page-hero{padding:120px 24px 60px}
+            .section{padding:60px 24px}
+            .methods-grid,.plans-grid,.policy-grid{grid-template-columns:1fr}
+            .cta-block{flex-direction:column;text-align:center;margin:0 24px 60px;padding:40px 24px}
+            .policy-wrap{padding:0 24px 60px}
+            footer{padding:32px 24px;flex-direction:column;gap:24px;text-align:center}
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-bg"></div>
+
+<nav>
+    <a href="index.html" class="nav-logo"><span class="b">{</span> dev-core <span class="b">}</span></a>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="contact.html" class="nav-cta">./contact</a></li>
+    </ul>
+</nav>
+
+<div class="page-hero">
+    <div class="page-tag">Payment</div>
+    <h1 class="page-title">Flexible <span>Options</span></h1>
+    <p class="page-subtitle">We offer multiple payment methods and flexible plans so you can start your project without friction.</p>
+</div>
+
+<!-- Payment Methods -->
+<div class="section reveal">
+    <div class="section-label">Accepted Payment Methods</div>
+    <div class="methods-grid">
+
+        <div class="method-card">
+            <svg class="method-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="4" y="10" width="36" height="24" rx="2"/>
+                <line x1="4" y1="18" x2="40" y2="18"/>
+                <rect x="8" y="22" width="10" height="6" rx="1"/>
+            </svg>
+            <div class="method-name">Bank Transfer</div>
+            <p class="method-desc">Direct bank transfer (wire) — secure and suitable for larger project budgets. Available locally (Egypt) and internationally.</p>
+            <div class="method-details">
+                <div class="method-detail">EGP · USD · EUR accepted</div>
+                <div class="method-detail">0% processing fee</div>
+                <div class="method-detail">1–2 business days</div>
+            </div>
+        </div>
+
+        <div class="method-card">
+            <svg class="method-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M10 12 C10 12 8 14 8 18 C8 22 10 22 10 22 L16 22 C16 22 18 22 18 18 C18 14 16 12 16 12 Z"/>
+                <path d="M16 12 C16 12 14 10 18 8 C22 6 26 8 28 12 C30 16 28 22 24 24 L20 24"/>
+                <path d="M20 18 C20 18 18 20 18 24 C18 28 20 30 24 30 L32 30 C34 30 36 28 36 26 L36 22"/>
+            </svg>
+            <div class="method-name">PayPal</div>
+            <p class="method-desc">Fast and secure international payments. Ideal for clients outside Egypt. Buyer protection included on eligible transactions.</p>
+            <div class="method-details">
+                <div class="method-detail">USD · EUR supported</div>
+                <div class="method-detail">Small processing fee applies</div>
+                <div class="method-detail">Instant transfer</div>
+            </div>
+        </div>
+
+        <div class="method-card">
+            <svg class="method-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M22 6 L36 12 L36 22 C36 31 29 38 22 40 C15 38 8 31 8 22 L8 12 Z"/>
+                <path d="M16 22 L20 26 L28 16"/>
+            </svg>
+            <div class="method-name">Installment Plans</div>
+            <p class="method-desc">Split payments available for projects over $500. Fixed milestone-based billing keeps both parties protected throughout the project.</p>
+            <div class="method-details">
+                <div class="method-detail">50% upfront · 50% on delivery</div>
+                <div class="method-detail">3-part plans for large projects</div>
+                <div class="method-detail">Milestone-based releases</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Pricing Plans -->
+    <div class="section-label">Service Plans</div>
+    <div class="plans-grid reveal">
+
+        <div class="plan-card">
+            <div class="plan-name">STARTER</div>
+            <div class="plan-price">$199 <span>from</span></div>
+            <div class="plan-period">One-time · Small projects</div>
+            <div class="plan-divider"></div>
+            <div class="plan-features">
+                <div class="plan-feature"><span class="check">✓</span> Landing page or simple web app</div>
+                <div class="plan-feature"><span class="check">✓</span> Up to 5 pages / screens</div>
+                <div class="plan-feature"><span class="check">✓</span> Responsive design</div>
+                <div class="plan-feature"><span class="check">✓</span> 2 weeks delivery</div>
+                <div class="plan-feature"><span class="check">✓</span> 30-day bug fixes</div>
+                <div class="plan-feature"><span class="cross">✗</span> Backend / database</div>
+                <div class="plan-feature"><span class="cross">✗</span> Ongoing support</div>
+            </div>
+            <a href="contact.html" class="plan-cta">./get_started</a>
+        </div>
+
+        <div class="plan-card featured">
+            <div class="plan-badge">POPULAR</div>
+            <div class="plan-name">PROFESSIONAL</div>
+            <div class="plan-price">$799 <span>from</span></div>
+            <div class="plan-period">One-time · Full projects</div>
+            <div class="plan-divider"></div>
+            <div class="plan-features">
+                <div class="plan-feature"><span class="check">✓</span> Full-stack web or mobile app</div>
+                <div class="plan-feature"><span class="check">✓</span> Custom backend & database</div>
+                <div class="plan-feature"><span class="check">✓</span> UI/UX design included</div>
+                <div class="plan-feature"><span class="check">✓</span> 4–6 weeks delivery</div>
+                <div class="plan-feature"><span class="check">✓</span> 90-day warranty</div>
+                <div class="plan-feature"><span class="check">✓</span> Deployment & hosting setup</div>
+                <div class="plan-feature"><span class="check">✓</span> Installment payment available</div>
+            </div>
+            <a href="contact.html" class="plan-cta">./get_started</a>
+        </div>
+
+        <div class="plan-card">
+            <div class="plan-name">ENTERPRISE</div>
+            <div class="plan-price">Custom</div>
+            <div class="plan-period">Ongoing · Large teams</div>
+            <div class="plan-divider"></div>
+            <div class="plan-features">
+                <div class="plan-feature"><span class="check">✓</span> Complex systems & platforms</div>
+                <div class="plan-feature"><span class="check">✓</span> Dedicated project manager</div>
+                <div class="plan-feature"><span class="check">✓</span> Pentesting & security audit</div>
+                <div class="plan-feature"><span class="check">✓</span> Server admin & DevOps</div>
+                <div class="plan-feature"><span class="check">✓</span> SLA-backed support</div>
+                <div class="plan-feature"><span class="check">✓</span> Team training & courses</div>
+                <div class="plan-feature"><span class="check">✓</span> Custom payment schedule</div>
+            </div>
+            <a href="contact.html" class="plan-cta">./contact_us</a>
+        </div>
+
+    </div>
+</div>
+
+<!-- Policies -->
+<div class="policy-wrap reveal">
+    <div class="policy-grid">
+        <div class="policy-item">
+            <h4>Refund Policy <span>// fair & transparent</span></h4>
+            <p>We offer partial refunds before development begins. Once a milestone is delivered and approved, that portion is non-refundable. We work to resolve any dissatisfaction before issuing refunds.</p>
+        </div>
+        <div class="policy-item">
+            <h4>Invoice & Receipts <span>// always provided</span></h4>
+            <p>A formal invoice is issued for every transaction. Receipts are sent immediately upon payment confirmation. All transactions are documented for your records.</p>
+        </div>
+        <div class="policy-item">
+            <h4>Currency <span>// flexible</span></h4>
+            <p>We accept EGP, USD, and EUR. Prices in USD are listed as reference — final pricing in your local currency will be confirmed before project start.</p>
+        </div>
+        <div class="policy-item">
+            <h4>Security <span>// your data is safe</span></h4>
+            <p>We never store payment information. All transactions go through trusted third-party processors. A signed contract is provided for all projects above $200.</p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-block reveal">
+    <div>
+        <h3>Have a budget in mind?</h3>
+        <p>Share your project scope and we'll send you a detailed quote within 24 hours.</p>
+    </div>
+    <a href="contact.html" class="btn-primary">./request_quote</a>
+</div>
+
+<footer>
+    <div class="footer-logo"><span class="b">{</span> dev-core <span class="b">}</span></div>
+    <span class="footer-copy">© 2024 dev-core. All rights reserved.</span>
+    <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="payment.html">Payment</a></li>
+    </ul>
+</footer>
+
+<script>
+    const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-4+'px';cursor.style.top=my-4+'px';});
+    (function loop(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;ring.style.left=rx-16+'px';ring.style.top=ry-16+'px';requestAnimationFrame(loop);})();
+    document.querySelectorAll('a,.method-card,.plan-card').forEach(el=>{
+        el.addEventListener('mouseenter',()=>{ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(74,158,255,.7)';});
+        el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(74,158,255,.4)';});
+    });
+    const obs=new IntersectionObserver(entries=>entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*100);obs.unobserve(e.target);}}),{threshold:.08});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+    const nav=document.querySelector('nav');
+    window.addEventListener('scroll',()=>{nav.style.padding=window.scrollY>60?'16px 60px':'24px 60px';});
+</script>
+</body>
+</html>

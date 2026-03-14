@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services — DEVCORE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --deep-navy:#0f1a2b; --navy:#1c2e4a; --steel:#52677d; --mist:#bdc4d4; --sand:#d1cfc9; --accent:#4a9eff; --accent-glow:rgba(74,158,255,0.15); }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{font-family:'Fira Code',monospace;background:var(--deep-navy);color:var(--sand);overflow-x:hidden;cursor:none}
+        .cursor{width:8px;height:8px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;mix-blend-mode:screen}
+        .cursor-ring{width:32px;height:32px;border:1px solid rgba(74,158,255,0.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:width .2s,height .2s,border-color .2s}
+        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--deep-navy)}::-webkit-scrollbar-thumb{background:var(--steel)}
+        body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:.4}
+        .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(74,158,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(74,158,255,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:24px 60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(82,103,125,.2);backdrop-filter:blur(12px);background:rgba(15,26,43,.7);transition:padding .3s}
+        .nav-logo{font-size:14px;font-weight:700;letter-spacing:.15em;color:var(--mist);text-decoration:none}
+        .nav-logo .b{color:var(--accent);font-weight:300}
+        .nav-links{display:flex;list-style:none;gap:40px;align-items:center}
+        .nav-links a{font-size:12px;letter-spacing:.1em;color:var(--steel);text-decoration:none;position:relative;transition:color .2s}
+        .nav-links a::before{content:'//';position:absolute;left:-18px;color:var(--accent);opacity:0;transition:opacity .2s;font-size:11px}
+        .nav-links a:hover,.nav-links a.active{color:var(--mist)}
+        .nav-links a:hover::before{opacity:1}
+        .nav-links a.active{color:var(--accent)}
+        .nav-cta{font-size:11px!important;color:var(--accent)!important;border:1px solid rgba(74,158,255,.3)!important;padding:8px 20px;letter-spacing:.12em!important;transition:background .2s!important}
+        .nav-cta:hover{background:var(--accent-glow)!important}
+        .nav-cta::before{display:none!important}
+
+        .page-hero{position:relative;z-index:1;padding:160px 60px 80px;border-bottom:1px solid rgba(82,103,125,.12)}
+        .page-tag{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.2em;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+        .page-tag::before{content:'';width:32px;height:1px;background:var(--accent)}
+        .page-title{font-size:clamp(36px,6vw,72px);font-weight:700;color:var(--mist);letter-spacing:-.02em;line-height:1;margin-bottom:20px}
+        .page-title span{color:transparent;-webkit-text-stroke:1px rgba(189,196,212,.3)}
+        .page-subtitle{font-size:13px;font-weight:300;color:var(--steel);line-height:1.8;max-width:520px}
+        .page-subtitle .comment{color:rgba(82,103,125,.6);font-size:12px;display:block;margin-bottom:8px}
+
+        .services-section{position:relative;z-index:1;padding:80px 60px 120px}
+
+        .sfc{display:grid;grid-template-columns:80px 1fr 64px;gap:40px;padding:52px 0;border-bottom:1px solid rgba(82,103,125,.12);align-items:start;cursor:none;transition:all .3s}
+        .sfc:first-child{border-top:1px solid rgba(82,103,125,.12)}
+        .sfc-hover{position:absolute;left:-60px;right:-60px;top:0;bottom:0;background:rgba(28,46,74,0);transition:background .3s;pointer-events:none}
+        .sfc:hover .sfc-hover{background:rgba(28,46,74,.35)}
+        .sfc-wrap{position:relative}
+
+        .sfc-num{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.2em;padding-top:6px;opacity:.6}
+        .sfc-body h2{font-size:clamp(22px,3vw,30px);font-weight:700;color:var(--mist);letter-spacing:-.02em;margin-bottom:14px;line-height:1.1}
+        .sfc-body p{font-size:13px;font-weight:300;color:var(--steel);line-height:1.8;max-width:540px;margin-bottom:24px}
+        .sfc-features{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+        .sfc-feature{font-size:12px;font-weight:400;color:var(--steel);display:flex;align-items:center;gap:10px}
+        .sfc-feature::before{content:'→';color:var(--accent);font-size:11px}
+        .sfc-tags{display:flex;flex-wrap:wrap;gap:8px}
+        .tag{font-size:10px;color:var(--steel);border:1px solid rgba(82,103,125,.3);padding:4px 10px;letter-spacing:.08em}
+        .sfc-icon{width:52px;height:52px;color:var(--accent);opacity:.5;flex-shrink:0;transition:opacity .3s;margin-top:4px}
+        .sfc:hover .sfc-icon{opacity:1}
+
+        .cta-strip{position:relative;z-index:1;background:rgba(28,46,74,.3);border-top:1px solid rgba(82,103,125,.12);padding:60px;display:flex;align-items:center;justify-content:space-between;gap:40px}
+        .cta-strip h3{font-size:clamp(20px,3vw,30px);font-weight:700;color:var(--mist);letter-spacing:-.02em}
+        .cta-strip p{font-size:12px;color:var(--steel);margin-top:8px;font-weight:300}
+        .btn-primary{font-family:'Fira Code',monospace;font-size:12px;font-weight:500;letter-spacing:.12em;color:var(--deep-navy);background:var(--accent);border:none;padding:14px 32px;cursor:none;transition:transform .2s,box-shadow .2s;text-decoration:none;display:inline-block;flex-shrink:0}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(74,158,255,.4)}
+
+        footer{position:relative;z-index:1;padding:40px 60px;border-top:1px solid rgba(82,103,125,.12);display:flex;align-items:center;justify-content:space-between}
+        .footer-logo{font-size:13px;font-weight:600;color:var(--mist);letter-spacing:.1em}
+        .footer-logo .b{color:var(--accent);font-weight:300}
+        .footer-copy{font-size:11px;color:var(--steel)}
+        .footer-links{display:flex;gap:28px;list-style:none}
+        .footer-links a{font-size:11px;color:var(--steel);text-decoration:none;transition:color .2s}
+        .footer-links a:hover{color:var(--mist)}
+
+        .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+        .reveal.visible{opacity:1;transform:none}
+
+        @media(max-width:900px){
+            nav{padding:20px 24px}
+            .nav-links{display:none}
+            .page-hero{padding:120px 24px 60px}
+            .services-section{padding:40px 24px 80px}
+            .sfc{grid-template-columns:1fr;gap:20px;padding:36px 0}
+            .sfc-num,.sfc-icon{display:none}
+            .cta-strip{padding:40px 24px;flex-direction:column;text-align:center}
+            footer{padding:32px 24px;flex-direction:column;gap:24px;text-align:center}
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-bg"></div>
+
+<nav>
+    <a href="index.html" class="nav-logo"><span class="b">{</span> dev-core <span class="b">}</span></a>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html" class="active">Services</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="contact.html" class="nav-cta">./contact</a></li>
+    </ul>
+</nav>
+
+<div class="page-hero">
+    <div class="page-tag">What We Do</div>
+    <h1 class="page-title">Our <span>Services</span></h1>
+    <p class="page-subtitle">
+        <span class="comment">// 07 core offerings</span>
+        Everything you need to build, secure, and scale — under one roof.
+        We specialize across the full software lifecycle.
+    </p>
+</div>
+
+<div class="services-section">
+
+    <div class="sfc-wrap reveal">
+        <div class="sfc-hover"></div>
+        <div class="sfc">
+            <div class="sfc-num">01</div>
+            <div class="sfc-body">
+                <h2>Web Development</h2>
+                <p>From high-converting landing pages to complex SaaS platforms — we build for performance, accessibility, and long-term maintainability.</p>
+                <div class="sfc-features">
+                    <div class="sfc-feature">Full-stack web applications & REST/GraphQL APIs</div>
+                    <div class="sfc-feature">E-commerce & content management systems</div>
+                    <div class="sfc-feature">Performance optimization & Core Web Vitals</div>
+                    <div class="sfc-feature">Progressive Web Apps (PWA)</div>
+                </div>
+                <div class="sfc-tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">TypeScript</span><span class="tag">PostgreSQL</span></div>
+            </div>
+            <svg class="sfc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="6" y="12" width="44" height="32" rx="3"/><polyline points="18,26 24,32 18,38"/><line x1="26" y1="38" x2="38" y2="38"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="sfc-wrap reveal">
+        <div class="sfc-hover"></div>
+        <div class="sfc">
+            <div class="sfc-num">02</div>
+            <div class="sfc-body">
+                <h2>Mobile Development</h2>
+                <p>Native and cross-platform mobile apps crafted for speed, reliability, and exceptional user experience on iOS and Android.</p>
+                <div class="sfc-features">
+                    <div class="sfc-feature">Cross-platform apps with native performance</div>
+                    <div class="sfc-feature">Offline-first architecture & background sync</div>
+                    <div class="sfc-feature">Push notifications & real-time features</div>
+                    <div class="sfc-feature">App Store & Play Store submission support</div>
+                </div>
+                <div class="sfc-tags"><span class="tag">React Native</span><span class="tag">Flutter</span><span class="tag">Swift</span><span class="tag">Kotlin</span></div>
+            </div>
+            <svg class="sfc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="18" y="6" width="20" height="44" rx="4"/><line x1="23" y1="12" x2="33" y2="12"/><circle cx="28" cy="44" r="2" fill="currentColor" stroke="none"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="sfc-wrap reveal">
+        <div class="sfc-hover"></div>
+        <div class="sfc">
+            <div class="sfc-num">03</div>
+            <div class="sfc-body">
+                <h2>Cloud & DevOps</h2>
+                <p>Scalable cloud infrastructure and automated pipelines that keep your product fast, secure, and cost-efficient at any scale.</p>
+                <div class="sfc-features">
+                    <div class="sfc-feature">CI/CD pipeline design & implementation</div>
+                    <div class="sfc-feature">Multi-cloud architecture (AWS, GCP, Azure)</div>
+                    <div class="sfc-feature">Container orchestration & microservices</div>
+                    <div class="sfc-feature">Infrastructure as Code (IaC)</div>
+                </div>
+                <div class="sfc-tags"><span class="tag">AWS</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Terraform</span><span class="tag">GitHub Actions</span></div>
+            </div>
+            <svg class="sfc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M14 34 C14 26 20 20 28 20 C34 20 39 24 40 30 C44 30 48 34 48 38 C48 42 44 44 40 44 L16 44 C11 44 8 40 8 36 C8 32 11 30 14 30"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="sfc-wrap reveal">
+        <div class="sfc-hover"></div>
+        <div class="sfc">
+            <div class="sfc-num">04</div>
+            <div class="sfc-body">
+                <h2>Penetration Testing</h2>
+                <p>Identify vulnerabilities before attackers do. Our certified security team conducts thorough assessments and delivers actionable remediation plans.</p>
+                <div class="sfc-features">
+                    <div class="sfc-feature">Web & API pentesting (OWASP Top 10)</div>
+                    <div class="sfc-feature">Mobile application security assessment</div>
+                    <div class="sfc-feature">Network & infrastructure vulnerability scanning</div>
+                    <div class="sfc-feature">Detailed report with remediation roadmap</div>
+                </div>
+                <div class="sfc-tags"><span class="tag">OWASP</span><span class="tag">Burp Suite</span><span class="tag">Metasploit</span><span class="tag">Nmap</span><span class="tag">Kali Linux</span></div>
+            </div>
+            <svg class="sfc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M28 6 L46 14 L46 28 C46 39 37 47 28 50 C19 47 10 39 10 28 L10 14 Z"/><polyline points="20,28 26,34 36,22"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="sfc-wrap reveal">
+        <div class="sfc-hover"></div>
+        <div class="sfc">
+            <div class="sfc-num">05</div>
+            <div class="sfc-body">
+                <h2>UI / UX Design</h2>
+                <p>Design that converts and delights. We create user-centered interfaces grounded in research, tested with real users, and crafted with precision.</p>
+                <div class="sfc-features">
+                    <div class="sfc-feature">User research & journey mapping</div>
+                    <div class="sfc-feature">Wireframing, prototyping & design systems</div>
+                    <div class="sfc-feature">Accessibility (WCAG 2.1) compliance</div>
+                    <div class="sfc-feature">Usability testing & iteration cycles</div>
+                </div>
+                <div class="sfc-tags"><span class="tag">Figma</span><span class="tag">Design System</span><span class="tag">Prototyping</span><span class="tag">A/B Testing</span></div>
+            </div>
+            <svg class="sfc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="8" y="12" width="40" height="28" rx="3"/><circle cx="28" cy="26" r="6"/><line x1="20" y1="44" x2="36" y2="44"/><line x1="28" y1="40" x2="28" y2="44"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="sfc-wrap reveal">
+        <div class="sfc-hover"></div>
+        <div class="sfc">
+            <div class="sfc-num">06</div>
+            <div class="sfc-body">
+                <h2>Server Administration</h2>
+                <p>End-to-end server lifecycle management — from initial provisioning and hardening to ongoing monitoring, patching, and performance tuning.</p>
+                <div class="sfc-features">
+                    <div class="sfc-feature">Linux & Windows server setup & hardening</div>
+                    <div class="sfc-feature">Web server configuration (Nginx, Apache)</div>
+                    <div class="sfc-feature">Automated backups & disaster recovery planning</div>
+                    <div class="sfc-feature">24/7 monitoring & incident response</div>
+                </div>
+                <div class="sfc-tags"><span class="tag">Linux</span><span class="tag">Nginx</span><span class="tag">Bash</span><span class="tag">Ansible</span><span class="tag">Prometheus</span></div>
+            </div>
+            <svg class="sfc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="8" y="12" width="40" height="12" rx="2"/><rect x="8" y="28" width="40" height="12" rx="2"/>
+                <circle cx="44" cy="18" r="2" fill="currentColor" stroke="none"/><circle cx="44" cy="34" r="2" fill="currentColor" stroke="none"/>
+                <line x1="12" y1="18" x2="24" y2="18"/><line x1="12" y1="34" x2="24" y2="34"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="sfc-wrap reveal">
+        <div class="sfc-hover"></div>
+        <div class="sfc">
+            <div class="sfc-num">07</div>
+            <div class="sfc-body">
+                <h2>Courses & Training</h2>
+                <p>Structured, hands-on technical courses for developers and teams. Live sessions, recorded content, and mentorship across web, security, and cloud.</p>
+                <div class="sfc-features">
+                    <div class="sfc-feature">Full-stack web development bootcamp</div>
+                    <div class="sfc-feature">Cybersecurity & ethical hacking fundamentals</div>
+                    <div class="sfc-feature">Cloud architecture & DevOps practices</div>
+                    <div class="sfc-feature">1-on-1 mentorship & team workshops</div>
+                </div>
+                <div class="sfc-tags"><span class="tag">Web Dev</span><span class="tag">Cybersecurity</span><span class="tag">Cloud</span><span class="tag">Live Sessions</span><span class="tag">Arabic</span></div>
+            </div>
+            <svg class="sfc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M10 44 L10 22 L28 14 L46 22 L46 44"/>
+                <rect x="21" y="30" width="14" height="14"/>
+                <line x1="28" y1="14" x2="28" y2="22"/><line x1="18" y1="26" x2="24" y2="26"/><line x1="32" y1="26" x2="38" y2="26"/>
+            </svg>
+        </div>
+    </div>
+
+</div>
+
+<div class="cta-strip reveal">
+    <div>
+        <h3>Ready to get started?</h3>
+        <p>Tell us about your project — we'll match you with the right service.</p>
+    </div>
+    <a href="contact.html" class="btn-primary">./start_a_project</a>
+</div>
+
+<footer>
+    <div class="footer-logo"><span class="b">{</span> dev-core <span class="b">}</span></div>
+    <span class="footer-copy">© 2024 dev-core. All rights reserved.</span>
+    <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="contact.html">Contact</a></li>
+    </ul>
+</footer>
+
+<script>
+    const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-4+'px';cursor.style.top=my-4+'px';});
+    (function loop(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;ring.style.left=rx-16+'px';ring.style.top=ry-16+'px';requestAnimationFrame(loop);})();
+    document.querySelectorAll('a,.sfc').forEach(el=>{
+        el.addEventListener('mouseenter',()=>{ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(74,158,255,.7)';});
+        el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(74,158,255,.4)';});
+    });
+    const obs=new IntersectionObserver(entries=>entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*80);obs.unobserve(e.target);}}),{threshold:.08});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+    const nav=document.querySelector('nav');
+    window.addEventListener('scroll',()=>{nav.style.padding=window.scrollY>60?'16px 60px':'24px 60px';});
+</script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact — DEVCORE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--deep-navy:#0f1a2b;--navy:#1c2e4a;--steel:#52677d;--mist:#bdc4d4;--sand:#d1cfc9;--accent:#4a9eff;--accent-glow:rgba(74,158,255,0.15)}
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{font-family:'Fira Code',monospace;background:var(--deep-navy);color:var(--sand);overflow-x:hidden;cursor:none}
+        .cursor{width:8px;height:8px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;mix-blend-mode:screen}
+        .cursor-ring{width:32px;height:32px;border:1px solid rgba(74,158,255,.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:width .2s,height .2s,border-color .2s}
+        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--deep-navy)}::-webkit-scrollbar-thumb{background:var(--steel)}
+        body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:.4}
+        .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(74,158,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(74,158,255,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:24px 60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(82,103,125,.2);backdrop-filter:blur(12px);background:rgba(15,26,43,.7);transition:padding .3s}
+        .nav-logo{font-size:14px;font-weight:700;letter-spacing:.15em;color:var(--mist);text-decoration:none}
+        .b{color:var(--accent);font-weight:300}
+        .nav-links{display:flex;list-style:none;gap:40px;align-items:center}
+        .nav-links a{font-size:12px;letter-spacing:.1em;color:var(--steel);text-decoration:none;position:relative;transition:color .2s}
+        .nav-links a::before{content:'//';position:absolute;left:-18px;color:var(--accent);opacity:0;transition:opacity .2s;font-size:11px}
+        .nav-links a:hover{color:var(--mist)}
+        .nav-links a:hover::before{opacity:1}
+        .nav-links a.active{color:var(--accent)}
+        .nav-cta{font-size:11px!important;color:var(--accent)!important;border:1px solid rgba(74,158,255,.3)!important;padding:8px 20px!important;letter-spacing:.12em!important;transition:background .2s!important}
+        .nav-cta:hover{background:var(--accent-glow)!important}
+        .nav-cta::before{display:none!important}
+
+        .page-hero{position:relative;z-index:1;padding:160px 60px 80px;border-bottom:1px solid rgba(82,103,125,.12)}
+        .page-tag{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.2em;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+        .page-tag::before{content:'';width:32px;height:1px;background:var(--accent)}
+        .page-title{font-size:clamp(36px,6vw,72px);font-weight:700;color:var(--mist);letter-spacing:-.02em;line-height:1;margin-bottom:20px}
+        .page-title span{color:transparent;-webkit-text-stroke:1px rgba(189,196,212,.3)}
+        .page-subtitle{font-size:13px;font-weight:300;color:var(--steel);line-height:1.8;max-width:480px}
+
+        /* Contact layout */
+        .contact-wrap{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 340px)}
+
+        /* Left — info */
+        .contact-info{padding:80px 60px;border-right:1px solid rgba(82,103,125,.12)}
+        .info-section{margin-bottom:56px}
+        .info-label{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.2em;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+        .info-label::before{content:'';width:16px;height:1px;background:var(--accent)}
+
+        .info-item{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;cursor:none;padding:16px;border:1px solid transparent;transition:border-color .2s,background .2s;text-decoration:none}
+        .info-item:hover{border-color:rgba(74,158,255,.2);background:rgba(28,46,74,.3)}
+        .info-icon{width:36px;height:36px;color:var(--accent);opacity:.7;flex-shrink:0}
+        .info-content{display:flex;flex-direction:column;gap:4px}
+        .info-title{font-size:11px;font-weight:500;color:var(--steel);letter-spacing:.1em}
+        .info-value{font-size:13px;font-weight:400;color:var(--mist)}
+
+        .availability{background:rgba(28,46,74,.3);border:1px solid rgba(82,103,125,.15);padding:24px;display:flex;align-items:center;gap:16px}
+        .avail-dot{width:8px;height:8px;background:#28ca41;border-radius:50%;flex-shrink:0;box-shadow:0 0 12px #28ca41;animation:avail-pulse 2s ease-in-out infinite}
+        @keyframes avail-pulse{0%,100%{box-shadow:0 0 12px #28ca41}50%{box-shadow:0 0 24px #28ca41,0 0 40px rgba(40,202,65,.3)}}
+        .avail-text h4{font-size:12px;font-weight:500;color:var(--mist);margin-bottom:4px}
+        .avail-text p{font-size:11px;font-weight:300;color:var(--steel)}
+
+        /* Right — form */
+        .contact-form{padding:80px 60px}
+        .form-header{margin-bottom:40px}
+        .form-header h3{font-size:18px;font-weight:600;color:var(--mist);letter-spacing:-.01em;margin-bottom:8px}
+        .form-header p{font-size:12px;font-weight:300;color:var(--steel)}
+
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+        .form-group{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+        .form-group label{font-size:11px;font-weight:500;color:var(--steel);letter-spacing:.1em}
+        .form-group label span{color:var(--accent)}
+
+        .form-input,.form-select,.form-textarea{font-family:'Fira Code',monospace;font-size:13px;font-weight:300;color:var(--mist);background:rgba(28,46,74,.3);border:1px solid rgba(82,103,125,.25);padding:14px 16px;width:100%;outline:none;transition:border-color .2s,background .2s;cursor:none}
+        .form-input::placeholder,.form-textarea::placeholder{color:rgba(82,103,125,.5)}
+        .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);background:rgba(28,46,74,.5)}
+        .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2352677d' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-color:rgba(28,46,74,.3);cursor:none}
+        .form-select option{background:var(--navy);color:var(--mist)}
+        .form-textarea{resize:vertical;min-height:120px;line-height:1.7}
+
+        .form-submit{font-family:'Fira Code',monospace;font-size:12px;font-weight:500;letter-spacing:.12em;color:var(--deep-navy);background:var(--accent);border:none;padding:16px 36px;cursor:none;width:100%;transition:box-shadow .2s,transform .2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px}
+        .form-submit:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(74,158,255,.4)}
+        .form-submit svg{width:16px;height:16px}
+
+        .form-note{font-size:11px;font-weight:300;color:var(--steel);text-align:center;margin-top:14px;line-height:1.6}
+        .form-note a{color:var(--accent);text-decoration:none}
+
+        /* Payment CTA */
+        .payment-strip{position:relative;z-index:1;background:rgba(28,46,74,.2);border-top:1px solid rgba(82,103,125,.12);padding:40px 60px;display:flex;align-items:center;gap:20px}
+        .payment-strip svg{width:32px;height:32px;color:var(--accent);opacity:.7;flex-shrink:0}
+        .payment-strip p{font-size:12px;font-weight:300;color:var(--steel);line-height:1.7}
+        .payment-strip p strong{color:var(--mist);font-weight:500}
+        .payment-strip a{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.1em;text-decoration:none;border:1px solid rgba(74,158,255,.3);padding:10px 20px;margin-left:auto;flex-shrink:0;transition:background .2s,border-color .2s}
+        .payment-strip a:hover{background:var(--accent-glow);border-color:var(--accent)}
+
+        footer{position:relative;z-index:1;padding:40px 60px;border-top:1px solid rgba(82,103,125,.12);display:flex;align-items:center;justify-content:space-between}
+        .footer-logo{font-size:13px;font-weight:600;color:var(--mist);letter-spacing:.1em}
+        .footer-copy{font-size:11px;color:var(--steel)}
+        .footer-links{display:flex;gap:28px;list-style:none}
+        .footer-links a{font-size:11px;color:var(--steel);text-decoration:none;transition:color .2s}
+        .footer-links a:hover{color:var(--mist)}
+
+        .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s,transform .7s}
+        .reveal.visible{opacity:1;transform:none}
+
+        .success-msg{display:none;background:rgba(40,202,65,.08);border:1px solid rgba(40,202,65,.3);padding:16px 20px;font-size:12px;color:#28ca41;margin-top:16px;text-align:center;letter-spacing:.05em}
+
+        @media(max-width:900px){
+            nav{padding:20px 24px}
+            .nav-links{display:none}
+            .page-hero{padding:120px 24px 60px}
+            .contact-wrap{grid-template-columns:1fr}
+            .contact-info{padding:48px 24px;border-right:none;border-bottom:1px solid rgba(82,103,125,.12)}
+            .contact-form{padding:48px 24px}
+            .form-row{grid-template-columns:1fr}
+            .payment-strip{flex-direction:column;padding:32px 24px;text-align:center}
+            .payment-strip a{margin-left:0}
+            footer{padding:32px 24px;flex-direction:column;gap:24px;text-align:center}
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-bg"></div>
+
+<nav>
+    <a href="index.html" class="nav-logo"><span class="b">{</span> dev-core <span class="b">}</span></a>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="contact.html" class="nav-cta active">./contact</a></li>
+    </ul>
+</nav>
+
+<div class="page-hero">
+    <div class="page-tag">Get In Touch</div>
+    <h1 class="page-title">Let's <span>Talk</span></h1>
+    <p class="page-subtitle">Have a project in mind? We'd love to hear about it. Fill out the form or reach out directly — we respond within 24 hours.</p>
+</div>
+
+<div class="contact-wrap">
+
+    <!-- Info Column -->
+    <div class="contact-info reveal">
+        <div class="info-section">
+            <div class="info-label">Direct Contact</div>
+            <a href="mailto:devcore.communicate@gmail.com" class="info-item">
+                <svg class="info-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <rect x="4" y="8" width="28" height="20" rx="2"/>
+                    <polyline points="4,8 18,20 32,8"/>
+                </svg>
+                <div class="info-content">
+                    <span class="info-title">EMAIL</span>
+                    <span class="info-value">devcore.communicate@gmail.com</span>
+                </div>
+            </a>
+            <a href="tel:+201034200916" class="info-item">
+                <svg class="info-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <path d="M8 6 C8 6 6 8 6 12 C6 22 14 30 24 30 C28 30 30 28 30 28 L26 22 C26 22 24 23 22 22 C20 21 16 17 15 15 C14 13 15 11 15 11 Z"/>
+                </svg>
+                <div class="info-content">
+                    <span class="info-title">PHONE / WHATSAPP</span>
+                    <span class="info-value">+20 103 420 0916</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="info-section">
+            <div class="info-label">Response Time</div>
+            <div class="availability">
+                <div class="avail-dot"></div>
+                <div class="avail-text">
+                    <h4>Available for new projects</h4>
+                    <p>Typical response within 24 hours · Sun–Thu</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-label">Quick Links</div>
+            <a href="services.html" class="info-item">
+                <svg class="info-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <rect x="6" y="10" width="24" height="16" rx="2"/>
+                    <polyline points="12,16 16,20 12,24"/>
+                    <line x1="18" y1="24" x2="24" y2="24"/>
+                </svg>
+                <div class="info-content">
+                    <span class="info-title">VIEW ALL SERVICES</span>
+                    <span class="info-value">Web · Mobile · Security · Cloud · Courses</span>
+                </div>
+            </a>
+            <a href="payment.html" class="info-item">
+                <svg class="info-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <rect x="4" y="10" width="28" height="18" rx="2"/>
+                    <line x1="4" y1="16" x2="32" y2="16"/>
+                    <rect x="8" y="20" width="8" height="4" rx="1"/>
+                </svg>
+                <div class="info-content">
+                    <span class="info-title">PAYMENT OPTIONS</span>
+                    <span class="info-value">View payment methods & plans</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Column -->
+    <div class="contact-form reveal">
+        <div class="form-header">
+            <h3>Send us a message</h3>
+            <p><span style="color:rgba(82,103,125,.6)">// </span>Tell us about your project and we'll get back to you with a plan.</p>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Name <span>*</span></label>
+                <input type="text" class="form-input" placeholder="Your full name" id="inp-name">
+            </div>
+            <div class="form-group">
+                <label>Email <span>*</span></label>
+                <input type="email" class="form-input" placeholder="your@email.com" id="inp-email">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Service Needed <span>*</span></label>
+            <select class="form-select" id="inp-service">
+                <option value="" disabled selected>Select a service...</option>
+                <option value="web">Web Development</option>
+                <option value="mobile">Mobile Development</option>
+                <option value="cloud">Cloud & DevOps</option>
+                <option value="pentest">Penetration Testing</option>
+                <option value="uiux">UI / UX Design</option>
+                <option value="server">Server Administration</option>
+                <option value="courses">Courses & Training</option>
+                <option value="other">Other / Not Sure</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Budget Range</label>
+            <select class="form-select" id="inp-budget">
+                <option value="" disabled selected>Select a budget range...</option>
+                <option>Under $500</option>
+                <option>$500 – $2,000</option>
+                <option>$2,000 – $10,000</option>
+                <option>$10,000+</option>
+                <option>Let's discuss</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Project Details <span>*</span></label>
+            <textarea class="form-textarea" id="inp-message" placeholder="Describe your project, goals, timeline, and any specific requirements..."></textarea>
+        </div>
+
+        <button class="form-submit" onclick="handleSubmit()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <line x1="2" y1="8" x2="12" y2="8"/><polyline points="8,4 12,8 8,12"/>
+            </svg>
+            ./send_message
+        </button>
+        <p class="form-note">Or email us directly at <a href="mailto:devcore.communicate@gmail.com">devcore.communicate@gmail.com</a></p>
+        <div class="success-msg" id="success-msg">
+            ✓ Message sent! We'll get back to you within 24 hours.
+        </div>
+    </div>
+
+</div>
+
+<!-- Payment Strip -->
+<div class="payment-strip reveal">
+    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="2" y="8" width="28" height="18" rx="2"/>
+        <line x1="2" y1="14" x2="30" y2="14"/>
+        <rect x="6" y="18" width="8" height="4" rx="1"/>
+    </svg>
+    <p><strong>Flexible payment options available.</strong> We accept bank transfer, PayPal, and installment plans for larger projects. View all accepted payment methods before starting your project.</p>
+    <a href="payment.html">./view_payment →</a>
+</div>
+
+<footer>
+    <div class="footer-logo"><span class="b">{</span> dev-core <span class="b">}</span></div>
+    <span class="footer-copy">© 2024 dev-core. All rights reserved.</span>
+    <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="contact.html">Contact</a></li>
+    </ul>
+</footer>
+
+<script>
+    const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-4+'px';cursor.style.top=my-4+'px';});
+    (function loop(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;ring.style.left=rx-16+'px';ring.style.top=ry-16+'px';requestAnimationFrame(loop);})();
+    document.querySelectorAll('a,button,.info-item,.form-input,.form-select,.form-textarea').forEach(el=>{
+        el.addEventListener('mouseenter',()=>{ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(74,158,255,.7)';});
+        el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(74,158,255,.4)';});
+    });
+    const obs=new IntersectionObserver(entries=>entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*120);obs.unobserve(e.target);}}),{threshold:.08});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+    const nav=document.querySelector('nav');
+    window.addEventListener('scroll',()=>{nav.style.padding=window.scrollY>60?'16px 60px':'24px 60px';});
+
+    function handleSubmit(){
+        const name=document.getElementById('inp-name').value.trim();
+        const email=document.getElementById('inp-email').value.trim();
+        const service=document.getElementById('inp-service').value;
+        const message=document.getElementById('inp-message').value.trim();
+        if(!name||!email||!service||!message){
+            alert('Please fill in all required fields.');
+            return;
+        }
+        const mailto=`mailto:devcore.communicate@gmail.com?subject=Project Inquiry — ${service}&body=Name: ${name}%0AEmail: ${email}%0AService: ${service}%0A%0A${encodeURIComponent(message)}`;
+        window.location.href=mailto;
+        document.getElementById('success-msg').style.display='block';
+    }
+</script>
+</body>
+</html>
